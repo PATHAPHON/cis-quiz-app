@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { OptionId, Question } from '../types/quiz';
 
 interface QuizCardProps {
@@ -9,7 +9,7 @@ interface QuizCardProps {
   totalQuestions: number;
   selectedAnswers: OptionId[];
   isSubmitted: boolean;
-  onSelectOption: (optionId: OptionId) => void;
+  onSelectOption: (selected: OptionId | OptionId[]) => void;
   onNextQuestion: () => void;
   isLastQuestion: boolean;
 }
@@ -25,8 +25,39 @@ export function QuizCard({
   isLastQuestion,
 }: QuizCardProps) {
   const [isZoomImage, setIsZoomImage] = useState(false);
+  const isMultiSelect = !!question.isMultiSelect || question.correctAnswers.length > 1;
+  const [tempSelected, setTempSelected] = useState<OptionId[]>(selectedAnswers || []);
 
-  const isSelected = (id: OptionId) => selectedAnswers.includes(id);
+  useEffect(() => {
+    setTempSelected(selectedAnswers || []);
+  }, [question.id, isSubmitted, selectedAnswers]);
+
+  const handleOptionClick = (id: OptionId) => {
+    if (isSubmitted) return;
+
+    if (isMultiSelect) {
+      if (tempSelected.includes(id)) {
+        setTempSelected(tempSelected.filter((item) => item !== id));
+      } else {
+        setTempSelected([...tempSelected, id]);
+      }
+    } else {
+      onSelectOption(id);
+    }
+  };
+
+  const handleConfirmMultiSubmit = () => {
+    if (tempSelected.length === 0) return;
+    onSelectOption(tempSelected);
+  };
+
+  const isSelected = (id: OptionId) =>
+    isSubmitted
+      ? selectedAnswers.includes(id)
+      : isMultiSelect
+      ? tempSelected.includes(id)
+      : selectedAnswers.includes(id);
+
   const isCorrectOption = (id: OptionId) => question.correctAnswers.includes(id);
   
   const userGotItRight =
@@ -107,7 +138,11 @@ export function QuizCard({
           คำถามที่ {questionIndex + 1} / {totalQuestions}
         </span>
 
-        {question.difficulty && (
+        {isMultiSelect ? (
+          <span className="text-xs font-extrabold px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 shadow-sm flex items-center space-x-1">
+            <span>☑️ เลือกตอบ {question.correctAnswers.length} ข้อ</span>
+          </span>
+        ) : question.difficulty ? (
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
               question.difficulty === 'ง่าย'
@@ -119,7 +154,7 @@ export function QuizCard({
           >
             ระดับ: {question.difficulty}
           </span>
-        )}
+        ) : null}
       </div>
 
       {/* Question Card Box */}
@@ -212,11 +247,25 @@ export function QuizCard({
           return (
             <button
               key={option.id}
-              onClick={() => onSelectOption(option.id)}
+              onClick={() => handleOptionClick(option.id)}
               disabled={isSubmitted}
               className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all duration-200 ${optionStyle} ${animationClass}`}
             >
               <div className="flex items-center space-x-3 pr-2 flex-1">
+                {isMultiSelect && (
+                  <div
+                    className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition ${
+                      selected
+                        ? 'bg-indigo-500 border-indigo-400 text-white'
+                        : 'bg-slate-900 border-slate-700 text-transparent'
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5 stroke-current" fill="none" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+
                 <span className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 uppercase transition ${badgeStyle}`}>
                   {option.id}
                 </span>
@@ -260,6 +309,26 @@ export function QuizCard({
           );
         })}
       </div>
+
+      {/* Multi-Select Confirm Submission Button (before answer submission) */}
+      {isMultiSelect && !isSubmitted && (
+        <div className="pt-2 sticky bottom-0 z-10 bg-gradient-to-t from-slate-900 via-slate-900 to-transparent pb-2">
+          <button
+            onClick={handleConfirmMultiSubmit}
+            disabled={tempSelected.length === 0}
+            className={`w-full py-3.5 px-4 rounded-2xl font-bold text-sm shadow-xl transition active:scale-98 flex items-center justify-center space-x-2 ${
+              tempSelected.length > 0
+                ? 'bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 text-white shadow-indigo-900/40 cursor-pointer'
+                : 'bg-slate-800 text-slate-500 border border-slate-700/60 cursor-not-allowed opacity-60'
+            }`}
+          >
+            <span>ยืนยันคำตอบ ({tempSelected.length} ข้อ)</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Instant Explanation Box */}
       {isSubmitted && (

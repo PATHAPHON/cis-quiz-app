@@ -235,7 +235,10 @@ export function QuizSummary({
 
                 <p className="text-[11px] text-slate-400 bg-slate-900/60 p-2 rounded-xl border border-slate-800">
                   <strong className="text-slate-300">เฉลย: </strong>
-                  {q.options.find((o) => q.correctAnswers.includes(o.id))?.text}
+                  {q.options
+                    .filter((o) => q.correctAnswers.includes(o.id))
+                    .map((o) => `[${o.id.toUpperCase()}] ${o.text}`)
+                    .join(' , ')}
                   <br />
                   <span className="text-[10px] opacity-80 mt-1 block">{q.explanation}</span>
                 </p>

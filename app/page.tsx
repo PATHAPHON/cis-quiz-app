@@ -142,15 +142,19 @@ export default function Home() {
     setScreen('QUIZ');
   };
 
-  const handleSelectOption = (optionId: OptionId) => {
+  const handleSelectOption = (selected: OptionId | OptionId[]) => {
     if (isSubmittedCurrentQuestion) return;
 
     const currentQ = activeQuestions[currentQuestionIndex];
-    const newAnswers = { ...userAnswers, [currentQ.id]: [optionId] };
+    const selectedArray = Array.isArray(selected) ? selected : [selected];
+    const newAnswers = { ...userAnswers, [currentQ.id]: selectedArray };
     setUserAnswers(newAnswers);
     setIsSubmittedCurrentQuestion(true);
 
-    const isCorrect = currentQ.correctAnswers.includes(optionId);
+    const isCorrect =
+      selectedArray.length === currentQ.correctAnswers.length &&
+      selectedArray.every((id) => currentQ.correctAnswers.includes(id));
+
     if (isCorrect) {
       playSound('correct', soundEnabled);
     } else {
