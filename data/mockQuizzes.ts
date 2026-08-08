@@ -16,10 +16,10 @@ export const modulesData: ModuleInfo[] = [
     code: 'M9',
     title: 'Social Media',
     subtitle: 'สื่อสังคมออนไลน์และความปลอดภัย',
-    description: 'ประเภทของโซเชียลมีเดีย การแชร์ข้อมูลอย่างปลอดภัย สิทธิความเป็นส่วนตัว พ.ร.บ.คอมพิวเตอร์ และจริยธรรมออนไลน์',
+    description: 'คลังข้อสอบ 37 ข้อ จากรูปภาพต้นฉบับ 4 หน้า ครบทุกข้อโจทย์ ตัวเลือกทั้งคำตอบปกติและตอบหลายข้อ (Multi-answer) 100%',
     iconName: 'share-nodes',
     colorTheme: 'sky',
-    totalQuestions: 25,
+    totalQuestions: 37,
   },
   {
     id: 'module-3',

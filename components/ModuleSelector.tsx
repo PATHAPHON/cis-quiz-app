@@ -93,7 +93,7 @@ export function ModuleSelector({
             </div>
             <div className="text-left">
               <h3 className="text-sm font-bold text-slate-100 group-hover:text-indigo-300 transition">
-                โหมดรวมข้อสอบ 3 โมดูล (All 142 ข้อ)
+                โหมดรวมข้อสอบ 3 โมดูล (All 149 ข้อ)
               </h3>
               <p className="text-[11px] text-slate-400">สุ่มทำข้อสอบรวม Spreadsheets, Social Media & Gen AI</p>
             </div>
